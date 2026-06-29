@@ -526,7 +526,7 @@ Some actions require permission on more than one resource before they succeed �
 
 ## Cross-resource dependencies
 
-A single action often touches more than one resource, so a restricted role usually needs more than the one permission it appears to require. This is the most common source of "silent" permission failures — an action is denied even though the role has the permission that obviously matches.
+A single action often touches more than one resource, so a restricted role usually needs more than the one permission it appears to require.
 
 <Aside type="caution">
 A user whose role grants **All** resources / **All** operations — including the default **Tenant Administrator** role — is never affected by these dependencies. They only surface for **custom roles** that grant a narrower set of permissions, such as a read-only role.
@@ -540,7 +540,7 @@ A few recurring patterns explain most of them:
 - **Group-based access** — linking a user group to a role (**Group Permission**) also needs **Read** on the **Role** and **Write** on the user group.
 - **Account-attached objects** — objects stored on a user account, such as API keys, also need **Write** on the **User**.
 
-The table below lists each action where ThingsBoard checks a **second** permission before it will succeed.
+The table below lists some example actions where ThingsBoard checks a **second** permission before it will succeed.
 
 | To perform this action | You also need |
 |------------------------|---------------|
