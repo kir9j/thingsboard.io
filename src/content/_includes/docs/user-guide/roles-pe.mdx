@@ -246,7 +246,7 @@ Each permission entry in a role specifies a resource type and one or more operat
 | **Add to Group** | Add entities to an entity group |
 | **Remove from Group** | Remove entities from an entity group |
 | **Share Group** | Share an entity group with another customer or user group |
-| **Assign to Tenant** | Assign a device to another tenant |
+| **Assign to Tenant** | Assign a device to another tenant (applies to the Device resource) |
 | **Read Calculated Field and Alarm Rules** | View calculated fields and alarm rules defined on the entity |
 | **Write Calculated Field and Alarm Rules** | Create or modify calculated fields and alarm rules on the entity |
 
@@ -517,7 +517,7 @@ Some actions require permission on more than one resource before they succeed �
   </tr>
 
   <tr>
-    <td><strong>Widgets Bundle</strong></td>
+    <td><strong>Widget Bundle</strong></td>
     <td>Manage collections of widget types.</td>
   </tr>
 
@@ -529,7 +529,7 @@ Some actions require permission on more than one resource before they succeed �
 A single action often touches more than one resource, so a restricted role usually needs more than the one permission it appears to require.
 
 <Aside type="caution">
-A user whose role grants **All** resources / **All** operations — including the default **Tenant Administrator** role — is never affected by these dependencies. They only surface for **custom roles** that grant a narrower set of permissions, such as a read-only role.
+A user whose role grants **All** operations on **All** resources — including the default **Tenant Administrator** role — is never affected by these dependencies. They only surface for **custom roles** that grant a narrower set of permissions, such as a read-only role.
 </Aside>
 
 A few recurring patterns explain most of them:
@@ -544,7 +544,7 @@ The table below lists some example actions where ThingsBoard checks a **second**
 
 | To perform this action | You also need |
 |------------------------|---------------|
-| Create or manage a user's **API key** | **Write** on **User** |
+| Create or manage a user's **API Key** | **Write** on **User** |
 | Create or assign an **alarm** | **Read** on the alarm's originator entity; **Read** on **User** when setting an assignee |
 | Create a **relation** between two entities | **Write** on **both** entities |
 | Create a **calculated field** or **alarm rule** | **Read** on every customer, asset, or device it references |
