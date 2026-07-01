@@ -231,7 +231,7 @@ Each permission entry in a role specifies a resource type and one or more operat
 | **All** | Every operation available for the resource |
 | **Create** | Create new entities of this resource type |
 | **Read** | View entity details, configuration, and settings |
-| **Write** | Modify entities, their configuration, and attributes |
+| **Write** | Modify entities and their configuration |
 | **Delete** | Delete entities of this resource type |
 | **RPC Call** | Send RPC commands to devices |
 | **Read Credentials** | View device credentials, such as access tokens and keys |
@@ -534,7 +534,7 @@ A user whose role grants **All** operations on **All** resources — including t
 
 A few recurring patterns explain most of them:
 
-- **Entity groups** — to act on the entities inside a group you need the group permission (**Add to Group** / **Remove from Group**) *and* **Read** on each entity.
+- **Entity groups** — to add or remove entities in a group you need the group permission (**Add to Group** / **Remove from Group**) *and* **Read** on each entity.
 - **Ownership** — changing an entity's owner needs the **Change Owner** operation on that entity.
 - **Referenced entities** — when one object points at another, the role also needs **Read** on what it points to.
 - **Group-based access** — linking a user group to a role (**Group Permission**) also needs **Read** on the **Role** and **Write** on the user group.
@@ -545,25 +545,25 @@ The table below lists some example actions where ThingsBoard checks a **second**
 | To perform this action | You also need |
 |------------------------|---------------|
 | Create or manage a user's **API Key** | **Write** on **User** |
-| Create or assign an **alarm** | **Read** on the alarm's originator entity; **Read** on **User** when setting an assignee |
+| Create or assign an **Alarm** | **Read** on the alarm's originator entity; **Read** on **User** when setting an assignee |
 | Create a **relation** between two entities | **Write** on **both** entities |
-| Create a **calculated field** or **alarm rule** | **Read** on every customer, asset, or device it references |
-| Generate or download a dashboard **report** | **Read** on the source **dashboard** |
-| Set a tenant or customer **home dashboard** | **Read** on that **dashboard** |
-| Send a **notification** to specific users or groups | **Read** on **User**, plus the target customer, user group, or role depending on the recipient type |
-| Create a **notification request** | **Read** on each **notification target** it uses |
-| Configure a **domain** with OAuth 2.0 clients | **Read** on each **OAuth 2.0 client** |
-| Configure a **mobile bundle** with OAuth 2.0 clients | **Read** on each **OAuth 2.0 client** |
-| Configure **login white labeling** for a domain | **Read** on the **domain** |
-| Configure the **QR code widget** for a bundle | **Read** on the **mobile bundle** |
-| Generate an **AI device dashboard** | **Read**, **Read Attributes**, and **Read Telemetry** on the **device**, plus **Create** on **dashboard** |
-| Assign a **role** to a user group (**group permission**) | **Read** on the **role** and **Write** on the user group (and entity group, for group roles) |
-| **Share** an entity group | **Write** on the group, **Write** on the target user group, and **Read** on the **role** |
-| **Add** or **remove** entities in a group | **Add to Group** / **Remove from Group** on the group, and **Read** on each entity |
-| Create a device, asset, entity view, customer, user, or edge **directly into a group** | **Read** on that **entity group** |
+| Create a **calculated field** or **alarm rule** | **Read** on every **Customer**, **Asset**, or **Device** it references |
+| Generate or download a dashboard **Report** | **Read** on the source **Dashboard** |
+| Set a tenant or customer **home dashboard** | **Read** on that **Dashboard** |
+| Send a **Notification** to specific users or groups | **Read** on **User**, plus the target **Customer**, **User Group**, or **Role** depending on the recipient type |
+| Create a **Notification** request | **Read** on each **Notification** target it uses |
+| Configure a **Domain** with OAuth 2.0 Clients | **Read** on each **OAuth 2.0 Client** |
+| Configure a **Mobile Bundle** with OAuth 2.0 Clients | **Read** on each **OAuth 2.0 Client** |
+| Configure **login white labeling** for a **Domain** | **Read** on the **Domain** |
+| Configure the **QR code widget** for a **Mobile Bundle** | **Read** on the **Mobile Bundle** |
+| Generate an **AI device dashboard** | **Read**, **Read Attributes**, and **Read Telemetry** on the **Device**, plus **Create** on **Dashboard** |
+| Assign a **Role** to a **User Group** (**Group Permission**) | **Read** on the **Role** and **Write** on the **User Group** (and **Entity Group**, for group roles) |
+| **Share** an **Entity Group** | **Write** on the **Entity Group**, **Write** on the target **User Group**, and **Read** on the **Role** |
+| **Add** or **remove** entities in an **Entity Group** | **Add to Group** / **Remove from Group** on the **Entity Group**, and **Read** on each entity |
+| Create a **Device**, **Asset**, **Entity View**, **Customer**, **User**, or **Edge** directly into an **Entity Group** | **Read** on that **Entity Group** |
 | Change an entity's **owner** | **Change Owner** on the entity; assigning it into target groups also needs **Add to Group** |
-| Assign a rule chain, integration, scheduler event, or group **to an edge** | **Write** on the **edge** and **Read** on the assigned resource |
-| View an **audit log** for a specific entity, customer, or user | **Read** on that entity, customer, or user |
-| Manage **customer-level white labeling** | **Read** on the **customer** |
-| Configure **self-registration** with a notification recipient | **Read** on the **notification target** |
-| **Export** or **import** entities through **version control** | **Read** (export) or **Create** / **Write** (import) on each entity's own resource |
+| Assign a **Rule Chain**, **Integration**, **Scheduler Event**, or **Entity Group** **to an Edge** | **Write** on the **Edge** and **Read** on the assigned resource |
+| View an **Audit Log** for a specific entity, **Customer**, or **User** | **Read** on that entity, **Customer**, or **User** |
+| Manage **White Labeling** at the customer level | **Read** on the **Customer** |
+| Configure **self-registration** with a notification recipient | **Read** on the **Notification** target |
+| **Export** or **import** entities through **Version Control** | **Read** (export) or **Create** / **Write** (import) on each entity's own resource |
