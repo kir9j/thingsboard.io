@@ -800,3 +800,113 @@ If you observe errors related to DNS issues, for example:
 )}
 
 </DocSection>
+
+<DocSection id="troubleshooting-db-connectivity" current={props.section}>
+
+Inside a container, `localhost` and `127.0.0.1` point to the container itself, not to the Docker host. If the ThingsBoard container cannot reach PostgreSQL, the log records a connection error that identifies the layer to fix:
+
+| Error | Meaning | What to check |
+|---|---|---|
+| `java.net.SocketTimeoutException: Connect timed out` | The connection attempt gets no response. | Host firewall, database address |
+| `Connection refused` | The address is reachable, but nothing accepts connections on port 5432. | PostgreSQL is running, `listen_addresses` in `postgresql.conf` |
+| `no pg_hba.conf entry for host` | PostgreSQL received the connection and rejected the client address. | `pg_hba.conf` |
+| `password authentication failed` | Network and PostgreSQL configuration are correct, credentials are not. | `SPRING_DATASOURCE_USERNAME`, `SPRING_DATASOURCE_PASSWORD` |
+
+The PostgreSQL log narrows this down further. Rejected connections appear there by default, while accepted ones do not, so enable `log_connections` in `postgresql.conf` to record every attempt. If no attempt appears after that, the packets are dropped before they reach the database.
+
+**Set the database address**
+
+The value of `SPRING_DATASOURCE_URL` depends on where PostgreSQL runs:
+
+| PostgreSQL location | `SPRING_DATASOURCE_URL` |
+|---|---|
+| Service in the same compose file | `jdbc:postgresql://postgres:5432/thingsboard` |
+| Docker host | `jdbc:postgresql://host.docker.internal:5432/thingsboard` |
+| Another server | `jdbc:postgresql://SERVER_IP:5432/thingsboard` |
+
+{props.platform === 'windows' ? (
+  <p>Docker Desktop resolves <code>host.docker.internal</code> to the host automatically, so no extra compose configuration is required.</p>
+) : (
+  <p>On macOS, Docker Desktop resolves <code>host.docker.internal</code> to the host automatically. On Linux, map the alias to the host gateway in every ThingsBoard service that connects to the database:</p>
+)}
+
+{props.platform !== 'windows' && (
+  <Code code={`services:\n  ${props.service ?? (props.product === Products.PE ? 'thingsboard-pe' : 'thingsboard-ce')}:\n    extra_hosts:\n      - "host.docker.internal:host-gateway"`} lang="yml" />
+)}
+
+<Aside type="caution">
+Do not point `SPRING_DATASOURCE_URL` at the bridge gateway address (`172.17.0.1`, `172.18.0.1`, etc.). Docker assigns it from the default address pool when it creates the network, so it can change when the network is recreated. Use `host.docker.internal` instead.
+</Aside>
+
+**Allow the Docker subnet in PostgreSQL**
+
+A PostgreSQL instance running on the host accepts local connections only until you configure it otherwise. Find the subnet of your Docker network first:
+
+```bash
+docker network ls
+docker network inspect NETWORK_NAME --format '{{(index .IPAM.Config 0).Subnet}}'
+```
+
+Set the listen address in `postgresql.conf`:
+
+```properties
+listen_addresses = '*'
+```
+
+Add a matching client entry to `pg_hba.conf`, replacing the subnet with the one you found. The authentication method must match how the password is stored, so use `md5` instead of `scram-sha-256` on instances that still store MD5 passwords:
+
+```properties
+host    thingsboard    postgres    172.18.0.0/16    scram-sha-256
+```
+
+Restart PostgreSQL. A reload is enough for `pg_hba.conf`, but `listen_addresses` is applied at server start only:
+
+```bash
+sudo systemctl restart postgresql
+```
+
+**Verify the connection**
+
+Run `psql` from a temporary container. It takes the same network path as ThingsBoard, which separates a networking problem from a ThingsBoard configuration problem. Use the credentials from `SPRING_DATASOURCE_USERNAME` and `SPRING_DATASOURCE_PASSWORD`:
+
+```bash
+docker run --rm --add-host=host.docker.internal:host-gateway postgres:18 \
+  psql "postgresql://postgres:postgres@host.docker.internal:5432/thingsboard" -c "SELECT 1;"
+```
+
+If this command succeeds and ThingsBoard still fails, the network path is fine and the problem is in the ThingsBoard configuration.
+
+</DocSection>
+
+<DocSection id="troubleshooting-db-firewall" current={props.section}>
+
+A packet sent from a container to the Docker host arrives on the host `INPUT` chain. UFW filters that chain and drops the packet, because the rules Docker adds for published ports apply to forwarded traffic and do not cover this path. The block is silent: ThingsBoard reports `Connect timed out`, and PostgreSQL never sees the connection.
+
+Check whether UFW is active:
+
+```bash
+sudo ufw status
+```
+
+If it is, allow the Docker subnet to reach PostgreSQL, replacing `172.18.0.0/16` with the subnet of your Docker network:
+
+```bash
+sudo ufw allow from 172.18.0.0/16 to any port 5432 proto tcp
+sudo ufw status
+```
+
+The rule takes effect immediately, and the second command confirms it.
+
+On hosts that run firewalld instead, Docker puts its bridge interfaces into the `docker` zone, which has the target `ACCEPT`, so this traffic usually passes. Check the zone of the bridge interface before adding any rule:
+
+```bash
+sudo firewall-cmd --get-zone-of-interface=BRIDGE_INTERFACE
+sudo firewall-cmd --permanent --add-rich-rule='rule family="ipv4" source address="172.18.0.0/16" port port="5432" protocol="tcp" accept'
+sudo firewall-cmd --reload
+```
+
+<Aside type="caution">
+Turning the firewall off also unblocks the connection, but it exposes every host port to the network. Add a scoped rule instead.
+</Aside>
+
+</DocSection>
