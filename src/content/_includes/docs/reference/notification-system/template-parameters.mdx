@@ -74,7 +74,7 @@ Which keys exist depends on how the alarm was created:
 
 | Alarm created by | Keys in `details` |
 |------------------|-------------------|
-| Alarm rule | A single `data` key holding the rendered **Additional info** text, plus `dashboardId` when the rule sets a mobile dashboard |
+| Alarm rule | `data` holding the rendered **Additional info** text, when that field is filled in, and `dashboardId` when the rule sets a mobile dashboard. A rule with neither leaves the details empty |
 | **Create alarm** rule node | Every key returned by the alarm details script |
 | REST API | Every key of the `details` object in the request |
 
@@ -84,7 +84,7 @@ The `details.<key>` parameters belong to the **Alarm** type only. [Alarm Comment
 
 A reading that caused the alarm, like a temperature or a signal level, is not a template parameter on its own. Store it in the alarm details first, then reference the key it lands under.
 
-In the <DocLink product={props.product === Products.EDGE_PE ? Products.PE : props.product === Products.EDGE ? Products.CE : props.product} path="user-guide/alarm-rules">alarm rule</DocLink>, write **Additional info** as plain text with `${argumentName}` placeholders:
+In the <DocLink product={props.product === Products.EDGE || props.product === Products.EDGE_PE ? Products.PE : props.product} path="user-guide/alarm-rules">alarm rule</DocLink>, write **Additional info** as plain text with `${argumentName}` placeholders:
 
 ```
 RSSI ${RSSI} dropped below the threshold ${rssiThreshold}
