@@ -252,7 +252,7 @@ produces these alarm details:
   Both rows produce the single key `data`, so a notification template can read the value only as `${details.data}`.
 </Aside>
 
-Notification templates read this value as `${details.data}`. For details, see <DocLink product={props.product} path="reference/notification-system/template-parameters" target="_blank">Template parameters</DocLink>.
+For how notification templates use this value, see <DocLink product={props.product} path="reference/notification-system/template-parameters" target="_blank">Template parameters</DocLink>.
 
 To store each value under its own key, create the alarm from a rule chain with the <DocLink product={props.product} path="reference/rule-engine/nodes/action/create-alarm" target="_blank">Create alarm</DocLink> node instead of an alarm rule. For details, see <DocLink product={props.product} path="recipes/enrich-alarms-with-details" target="_blank">Enrich alarms with details</DocLink>.
 

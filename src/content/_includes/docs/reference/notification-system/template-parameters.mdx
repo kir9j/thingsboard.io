@@ -74,7 +74,7 @@ Which keys exist depends on how the alarm was created:
 
 | Alarm created by | Keys in `details` |
 |------------------|-------------------|
-| Alarm rule | `data` holding the rendered **Additional info** text, when that field is filled in, and `dashboardId` when the rule sets a mobile dashboard. A rule with neither leaves the details empty |
+| Alarm rule | `data` holding the rendered **Additional info** text, when that field is filled in, and `dashboardId` when the rule sets a mobile dashboard. A rule with neither creates the alarm with empty details, and keeps the existing details when it updates an active alarm |
 | **Create alarm** rule node | Every key returned by the alarm details script |
 | REST API | Every key of the `details` object in the request |
 
@@ -112,13 +112,13 @@ Renders as: *New CRITICAL alarm: Low Signal* / *Sensor T1: RSSI -65 dropped belo
 
   | **Additional info** | `${details.data}` delivers |
   |---------------------|----------------------------|
-  | `{"currentRssi": "${RSSI} is the rssi"}` | `{"currentRssi": "-65 is the rssi"}` |
+  | `{"currentRssi": "${RSSI} is the RSSI"}` | `{"currentRssi": "-65 is the RSSI"}` |
   | `RSSI ${RSSI} dropped below the threshold ${rssiThreshold}` | `RSSI -65 dropped below the threshold -70` |
 
   In both cases `${details.currentRssi}` stays unresolved, because `currentRssi` never becomes a key of its own.
 </Aside>
 
-To address each value through its own parameter, create the alarm from a rule chain with the <DocLink product={props.product === Products.EDGE_PE ? Products.PE : props.product === Products.EDGE ? Products.CE : props.product} path="reference/rule-engine/nodes/action/create-alarm">Create alarm</DocLink> node instead. Its details script returns an object whose keys are preserved, so a script returning `{"currentRssi": -65, "threshold": -70}` exposes `${details.currentRssi}` and `${details.threshold}`. For details, see <DocLink product={props.product === Products.EDGE_PE ? Products.PE : props.product === Products.EDGE ? Products.CE : props.product} path="recipes/enrich-alarms-with-details">Enrich alarms with details</DocLink>.
+To address each value through its own parameter, create the alarm from a rule chain with the <DocLink product={props.product} path="reference/rule-engine/nodes/action/create-alarm">Create alarm</DocLink> node instead. Its details script returns an object whose keys are preserved, so a script returning `{"currentRssi": -65, "threshold": -70}` exposes `${details.currentRssi}` and `${details.threshold}`. For details, see <DocLink product={props.product === Products.EDGE_PE ? Products.PE : props.product === Products.EDGE ? Products.CE : props.product} path="recipes/enrich-alarms-with-details">Enrich alarms with details</DocLink>.
 
 ---
 
